@@ -1,26 +1,16 @@
 import React, { useRef } from "react";
+import { StatusBar } from "expo-status-bar";
 import { PanGestureHandler } from "react-native-gesture-handler";
-import Animated, {
-  interpolate,
+import {
   useAnimatedGestureHandler,
   useAnimatedStyle,
   useSharedValue,
-  withTiming,
 } from "react-native-reanimated";
-
-import {
-  AvatarButtom,
-  AvatarPic,
-  AvatarRow,
-  Container,
-  Header,
-  Title,
-  Gradient,
-} from "./styles";
-
-import { StatusBar } from "expo-status-bar";
-import Avatar from "./components/Avatar";
 import { LayoutChangeEvent } from "react-native";
+
+import { AvatarRow, Container, Header, Title, Gradient, AvatarWrapper } from "./styles";
+
+import Avatar from "./components/Avatar";
 
 export default function Main() {
   const tranlateX = useSharedValue(0);
@@ -46,16 +36,11 @@ export default function Main() {
       ctx.startY = tranlateY.value;
     },
     onActive: (event, ctx) => {
-      console.log(Math.abs(ctx.startX + event.translationX));
+      // console.log(Math.abs(ctx.startX + event.translationX));
 
-      if (
-        Math.abs(ctx.startX + event.translationX) > 40 &&
-        Math.abs(ctx.startX + event.translationX) < 550
-      ) {
-        tranlateX.value = ctx.startX + event.translationX;
-      }
+      tranlateX.value = ctx.startX + event.translationX;
 
-      //  tranlateY.value = ctx.startY + event.translationY;
+      tranlateY.value = ctx.startY + event.translationY;
     },
     onEnd: (_) => {
       panSarted.value = false;
@@ -78,21 +63,20 @@ export default function Main() {
       </Header>
       <Gradient />
       <PanGestureHandler onGestureEvent={gestureHandler}>
-        <Animated.View ref={viewRef} style={containerAnimation} onLayout={onLayout}>
+        <AvatarWrapper ref={viewRef} style={containerAnimation} onLayout={onLayout}>
           {avatarRows.map((item, index) => (
             <AvatarRow key={`row-${index}`} reverse={index % 2 === 0}>
-              {item.map((key, index) => (
+              {item.map((key, index2) => (
                 <Avatar
-                  index={index}
+                  initial={index === 0 && index2 === 0}
                   key={`avatar-${key}`}
-                  panStarted={panSarted}
                   viewTranslateX={tranlateX}
                   viewTranslateY={tranlateY}
                 />
               ))}
             </AvatarRow>
           ))}
-        </Animated.View>
+        </AvatarWrapper>
       </PanGestureHandler>
       <Gradient reverse />
     </Container>

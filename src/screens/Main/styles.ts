@@ -1,5 +1,5 @@
 import { LinearGradient } from "expo-linear-gradient";
-import { Animated } from "react-native";
+import Animated from "react-native-reanimated";
 import styled, { css } from "styled-components/native";
 
 interface Props {
@@ -43,17 +43,7 @@ export const Gradient = styled(LinearGradient).attrs({
 
 export const AvatarWrapper = styled(Animated.View)``;
 
-export const AvatarButtom = styled.TouchableOpacity.attrs({
-  activeOpacity: 0.9,
-})``;
-
 export const AvatarRow = styled.View<Props>`
   flex-direction: row;
   margin-left: ${({ reverse }) => (reverse ? 60 : 0)}px;
-`;
-
-export const AvatarPic = styled(Animated.Image)`
-  height: 80px;
-  width: 80px;
-  margin: 20px;
 `;
