@@ -11,6 +11,7 @@ import { LayoutChangeEvent } from "react-native";
 import { AvatarRow, Container, Header, Title, Gradient, AvatarWrapper } from "./styles";
 
 import Avatar from "./components/Avatar";
+import { snapPoint } from "react-native-redash";
 
 export default function Main() {
   const tranlateX = useSharedValue(0);
@@ -38,7 +39,10 @@ export default function Main() {
     onActive: (event, ctx) => {
       // console.log(Math.abs(ctx.startX + event.translationX));
 
-      tranlateX.value = ctx.startX + event.translationX;
+      tranlateX.value = snapPoint(ctx.startX + event.translationX, event.velocityX, [
+        0,
+        ctx.startX + event.translationX + 60,
+      ]);
 
       tranlateY.value = ctx.startY + event.translationY;
     },
