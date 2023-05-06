@@ -1,7 +1,7 @@
 import React from "react";
-import { View, useWindowDimensions } from "react-native";
+import { useWindowDimensions } from "react-native";
 
-import {
+import Animated, {
   Extrapolate,
   SharedValue,
   interpolate,
@@ -10,6 +10,7 @@ import {
   useAnimatedStyle,
   useDerivedValue,
   useSharedValue,
+  withTiming,
 } from "react-native-reanimated";
 
 import { AvatarButtom, AvatarPic, Wrapper } from "./styles";
@@ -24,15 +25,24 @@ interface Props {
 
 export default function Avatar({ initial, viewTranslateX, viewTranslateY }: Props) {
   const { width } = useWindowDimensions();
-  const scale = useSharedValue(1);
 
-  const wrapRef = useAnimatedRef<View>();
+  const scale = useSharedValue(1);
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
+  const pressed = useSharedValue(false);
+
+  const wrapRef = useAnimatedRef<Animated.View>();
 
   useDerivedValue(() => {
     if (_WORKLET) {
       const measured = measure(wrapRef);
       if (!measured || !viewTranslateX.value || !viewTranslateY.value) return;
       const { pageX, pageY } = measured;
+      const half = width / 2 - 40;
+
+      if (initial) {
+        console.log(half - pageX);
+      }
 
       let initialTranslate = -90;
       let finalTranslate = -10;
@@ -56,6 +66,14 @@ export default function Avatar({ initial, viewTranslateX, viewTranslateY }: Prop
         letValue = pageY;
       }
 
+      if (pressed.value) {
+        scale.value = withTiming(2);
+        translateX.value = withTiming(half - pageX);
+        return;
+      } else {
+        translateX.value = withTiming(0);
+      }
+
       scale.value = interpolate(
         letValue,
         [initialTranslate, finalTranslate],
@@ -63,15 +81,29 @@ export default function Avatar({ initial, viewTranslateX, viewTranslateY }: Prop
         Extrapolate.CLAMP
       );
     }
-  }, [viewTranslateX.value, viewTranslateY.value]);
+  }, [viewTranslateX.value, viewTranslateY.value, pressed.value]);
+
+  const animateWrapper = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }, { translateX: translateX.value }],
+  }));
 
   const animateAvatar = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
+    transform: [
+      { scale: scale.value },
+      { translateY: translateY.value },
+      { translateX: translateX.value },
+    ],
   }));
+
+  const onPress = () => {
+    pressed.value = !pressed.value;
+    // translateY.value = withTiming(-240);
+    // scale.value = withTiming(1.5);
+  };
 
   return (
     <Wrapper ref={wrapRef}>
-      <AvatarButtom>
+      <AvatarButtom onPress={onPress}>
         <AvatarPic source={avatar} style={animateAvatar} />
       </AvatarButtom>
     </Wrapper>

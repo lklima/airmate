@@ -5,13 +5,13 @@ import {
   useAnimatedGestureHandler,
   useAnimatedStyle,
   useSharedValue,
+  withSpring,
 } from "react-native-reanimated";
 import { LayoutChangeEvent } from "react-native";
 
 import { AvatarRow, Container, Header, Title, Gradient, AvatarWrapper } from "./styles";
 
 import Avatar from "./components/Avatar";
-import { snapPoint } from "react-native-redash";
 
 export default function Main() {
   const tranlateX = useSharedValue(0);
@@ -37,19 +37,35 @@ export default function Main() {
       ctx.startY = tranlateY.value;
     },
     onActive: (event, ctx) => {
-      // console.log(Math.abs(ctx.startX + event.translationX));
-
-      tranlateX.value = snapPoint(ctx.startX + event.translationX, event.velocityX, [
-        0,
-        ctx.startX + event.translationX + 60,
-      ]);
-
+      ctx.endX = ctx.startX + event.translationX;
+      ctx.endY = ctx.startY + event.translationY;
+      tranlateX.value = ctx.startX + event.translationX;
       tranlateY.value = ctx.startY + event.translationY;
     },
-    onEnd: (_) => {
+    onEnd: (event, ctx) => {
       panSarted.value = false;
-      // tranlateX.value = withTiming(tranlateX.value + 20);
-      // tranlateY.value = withTiming(tranlateY.value + 20);
+      const tranlation = 20;
+      const valueX =
+        event.translationX > 0
+          ? event.translationX + tranlation
+          : event.translationX - tranlation;
+      const valueY =
+        event.translationY > 0
+          ? event.translationY + tranlation
+          : event.translationY - tranlation;
+
+      // tranlateX.value = withSpring(ctx.endX + valueX, {
+      //   velocity: event.velocityX,
+      //   damping: 16,
+      //   restSpeedThreshold: 1.7,
+      //   restDisplacementThreshold: 0.4,
+      // });
+      // tranlateY.value = withSpring(ctx.endY + valueY, {
+      //   velocity: event.velocityY,
+      //   damping: 16,
+      //   restSpeedThreshold: 1.7,
+      //   restDisplacementThreshold: 0.4,
+      // });
     },
   });
 
